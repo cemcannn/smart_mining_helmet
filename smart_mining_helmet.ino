@@ -15,7 +15,7 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
 #define preheat_time 5000
 #define voltage 5
 #define treshold_methane 500
-#define treshold_monoxide 150
+#define treshold_monoxide 50
 
 // init MQ7 device
 MQ7 mq7(sensor_monoxide, voltage);
@@ -29,7 +29,7 @@ void setup() {
   digitalWrite(led_r, HIGH);
   digitalWrite(led_g, HIGH);
   digitalWrite(led_b, HIGH);
-
+	mq7.calibrate();	
   Serial.begin(9600);
 
   lcd.init();
@@ -42,16 +42,17 @@ void setup() {
   lcd.print("Isitiliyor...");
   delay(preheat_time);
 
+
   digitalWrite(led_b, HIGH);
   delay(1000);
+  lcd.clear();
 
-	mq7.calibrate();	
 
 }
 
 void loop() {
   int sensor_value_methane = analogRead(sensor_methane);
-  int sensor_value_monoxide = analogRead(sensor_monoxide);
+  int sensor_value_monoxide = mq7.readPpm();
 
   int sensor_value_temperature = sensor_temp_hum.readTemperature();
   int sensor_value_humidity = sensor_temp_hum.readHumidity();
