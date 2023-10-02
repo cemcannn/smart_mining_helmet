@@ -1,5 +1,6 @@
 #include <DHT11.h>
 #include <LiquidCrystal_I2C.h>
+#include <MQ7.h>
 
 #define sensor_methane A0
 #define sensor_monoxide A1
@@ -12,9 +13,12 @@ DHT11 sensor_temp_hum(8);
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 #define preheat_time 5000
-
-#define treshold_methane 350
+#define voltage 5
+#define treshold_methane 500
 #define treshold_monoxide 150
+
+// init MQ7 device
+MQ7 mq7(sensor_monoxide, voltage);
 
 void setup() {
   pinMode(buzzer_pin, OUTPUT);
@@ -33,12 +37,15 @@ void setup() {
 
   digitalWrite(led_b, LOW);
   lcd.setCursor(0, 0);
-  lcd.print("Sensor isitiliyor...");
+  lcd.print("Sensor");
+  lcd.setCursor(0, 1);
+  lcd.print("Isitiliyor...");
   delay(preheat_time);
 
   digitalWrite(led_b, HIGH);
   delay(1000);
 
+	mq7.calibrate();	
 
 }
 
@@ -99,7 +106,7 @@ void methane() {
 }
 
 void monoxide() {
-  int sensor_value_monoxide = analogRead(sensor_monoxide);
+  int sensor_value_monoxide = mq7.readPpm();
   lcd.setCursor(0, 0);
   lcd.print("Monoksit Degeri : ");
   lcd.setCursor(0, 1);
